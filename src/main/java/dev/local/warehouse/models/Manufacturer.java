@@ -8,7 +8,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
-@Document(collection = "manufacturers")
+@Document(collection = "manufacturer")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
