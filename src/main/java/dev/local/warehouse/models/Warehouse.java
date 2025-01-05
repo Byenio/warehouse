@@ -17,7 +17,7 @@ import java.util.List;
 public class Warehouse {
 
     @Id
-    private ObjectId id;
+    private String id;
     private String name;
     private String imageUrl;
 

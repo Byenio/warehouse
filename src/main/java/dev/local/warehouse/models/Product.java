@@ -3,7 +3,6 @@ package dev.local.warehouse.models;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
@@ -15,7 +14,7 @@ import org.springframework.data.mongodb.core.mapping.DocumentReference;
 public class Product {
 
     @Id
-    private ObjectId id;
+    private String id;
     private String name;
     private String barcode;             // [0-2] country | [3-7] manufacturer | [8-12] product | [13] control
     private String description;

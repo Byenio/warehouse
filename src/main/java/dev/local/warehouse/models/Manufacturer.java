@@ -15,7 +15,7 @@ import org.springframework.data.mongodb.core.mapping.DocumentReference;
 public class Manufacturer {
 
     @Id
-    private ObjectId id;
+    private String id;
     private String name;
     private String description;
     private String logoUrl;
