@@ -41,7 +41,7 @@ public class SubcategoryController {
         return subcategoryRepository.findById(id)
                 .map(subcategory -> {
                     subcategoryRepository.delete(subcategory);
-                    return new ResponseEntity<String>("Successfully deleted subcategory", HttpStatus.NO_CONTENT);
+                    return new ResponseEntity<>("Successfully deleted subcategory", HttpStatus.NO_CONTENT);
                 })
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }

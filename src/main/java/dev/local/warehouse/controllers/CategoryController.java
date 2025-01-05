@@ -50,7 +50,7 @@ public class CategoryController {
         return categoryRepository.findById(id)
                 .map(category -> {
                     categoryRepository.delete(category);
-                    return new ResponseEntity<String>("Successfully deleted category", HttpStatus.NO_CONTENT);
+                    return new ResponseEntity<>("Successfully deleted category", HttpStatus.NO_CONTENT);
                 })
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
