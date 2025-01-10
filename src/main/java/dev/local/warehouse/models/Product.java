@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 @Document(collection = "product")
 @Data
@@ -24,11 +23,8 @@ public class Product {
     private Integer grossPriceInCents;
     private Integer stock;
 
-    @DocumentReference
-    private Category categoryId;
-    @DocumentReference
-    private Subcategory subcategoryId;
-    @DocumentReference
-    private Manufacturer manufacturerId;
+    private String subcategoryId;
+    private String manufacturerId;
+    private String warehouseId;
 
 }

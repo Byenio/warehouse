@@ -5,7 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.DocumentReference;
+
+import java.util.List;
 
 @Document(collection = "manufacturer")
 @Data
@@ -20,7 +21,7 @@ public class Manufacturer {
     private String logoUrl;
     private String website;
 
-    @DocumentReference
-    private Country countryId;
+    private String countryId;
+    private List<String> productsId;
 
 }

@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 import java.util.List;
 
@@ -20,7 +19,6 @@ public class Warehouse {
     private String name;
     private String imageUrl;
 
-    @DocumentReference
-    private List<Product> products;
+    private List<String> productsId;
 
 }

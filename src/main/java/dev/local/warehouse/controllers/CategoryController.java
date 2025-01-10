@@ -7,131 +7,162 @@ import dev.local.warehouse.repositories.SubcategoryRepository;
 import org.bson.types.ObjectId;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/category")
+@RequestMapping({"/api/category"})
 public class CategoryController {
 
     private final CategoryRepository categoryRepository;
     private final SubcategoryRepository subcategoryRepository;
 
-    public CategoryController(CategoryRepository categoryRepository, SubcategoryRepository subcategoryRepository) {
+    public CategoryController(
+            final CategoryRepository categoryRepository,
+            final SubcategoryRepository subcategoryRepository
+    ) {
         this.categoryRepository = categoryRepository;
         this.subcategoryRepository = subcategoryRepository;
     }
 
     @PostMapping
-    public ResponseEntity<Category> create(@RequestBody Category category) {
-        if (category.getSubcategories() == null) {
-            category.setSubcategories(List.of());
+    @Transactional
+    public ResponseEntity<?> create(@RequestBody final Category category) {
+        if (category.getName() == null || category.getName().isEmpty()) {
+            return new ResponseEntity<>("Category name cannot be empty", HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity<>(categoryRepository.save(category), HttpStatus.CREATED);
+        if (category.getDescription() == null || category.getDescription().isEmpty()) {
+            return new ResponseEntity<>("Category description cannot be empty", HttpStatus.BAD_REQUEST);
+        }
+
+        Category savedCategory = categoryRepository.save(category);
+
+        for (String subcategoryId : category.getSubcategoriesId()) {
+            ObjectId subcategoryIdObj = new ObjectId(subcategoryId);
+            Optional<Subcategory> subcategoryEntity = subcategoryRepository.findById(subcategoryIdObj);
+
+            if (subcategoryEntity.isEmpty()) {
+                return new ResponseEntity<>(String.format("Subcategory not found: %s", subcategoryId), HttpStatus.NOT_FOUND);
+            }
+
+            Subcategory subcategory = subcategoryEntity.get();
+            subcategory.setCategoryId(savedCategory.getId());
+            subcategoryRepository.save(subcategory);
+        }
+
+        return new ResponseEntity<>(savedCategory, HttpStatus.CREATED);
     }
 
     @GetMapping
-    public ResponseEntity<List<Category>> getAll() {
+    public ResponseEntity<?> getAll() {
         return new ResponseEntity<>(categoryRepository.findAll(), HttpStatus.OK);
     }
 
     @GetMapping({"/{id}"})
-    public ResponseEntity<Category> getById(@PathVariable ObjectId id) {
-        return categoryRepository.findById(id)
-                .map(value -> new ResponseEntity<>(value, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    public ResponseEntity<?> getById(@PathVariable final ObjectId id) {
+        Optional<Category> category = categoryRepository.findById(id);
+
+        if (category.isEmpty()) {
+            return new ResponseEntity<>("Category not found", HttpStatus.NOT_FOUND);
+        }
+
+        Category categoryEntity = category.get();
+
+        return new ResponseEntity<>(categoryEntity, HttpStatus.OK);
+    }
+
+    @GetMapping({"/{id}/subcategories"})
+    public ResponseEntity<?> getSubcategories(@PathVariable final ObjectId id) {
+        Optional<Category> category = categoryRepository.findById(id);
+
+        if (category.isEmpty()) {
+            return new ResponseEntity<>("Category not found", HttpStatus.NOT_FOUND);
+        }
+
+        Category categoryEntity = category.get();
+
+        return new ResponseEntity<>(categoryEntity.getSubcategoriesId(), HttpStatus.OK);
     }
 
     @DeleteMapping({"/{id}"})
-    public ResponseEntity<String> delete(@PathVariable ObjectId id) {
-        return categoryRepository.findById(id)
-                .map(category -> {
-                    categoryRepository.delete(category);
-                    return new ResponseEntity<>("Successfully deleted category", HttpStatus.NO_CONTENT);
-                })
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
-    }
-
-    @PutMapping("/{id}/subcategories")
-    public ResponseEntity<Category> addSubcategories(
-            @PathVariable ObjectId id,
-            @RequestBody List<ObjectId> subcategoryIds
-    ) {
+    public ResponseEntity<?> delete(@PathVariable final ObjectId id) {
         Optional<Category> category = categoryRepository.findById(id);
 
         if (category.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Category not found", HttpStatus.NOT_FOUND);
         }
 
-        Category categoryEntity = category.get();
-        List<Subcategory> subcategories = subcategoryRepository.findAllById(subcategoryIds);
-        categoryEntity.getSubcategories().addAll(subcategories);
+        categoryRepository.delete(category.get());
 
-        return new ResponseEntity<>(categoryRepository.save(categoryEntity), HttpStatus.OK);
+        return new ResponseEntity<>("Category deleted", HttpStatus.NO_CONTENT);
     }
 
-    @PutMapping({"/{id}/subcategories/{subcategoryId}"})
-    public ResponseEntity<Category> addSubcategory(@PathVariable ObjectId id, @PathVariable ObjectId subcategoryId) {
-        Optional<Category> category = categoryRepository.findById(id);
-        Optional<Subcategory> subcategory = subcategoryRepository.findById(subcategoryId);
-
-        if (category.isEmpty() || subcategory.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
-        Category categoryEntity = category.get();
-        categoryEntity.getSubcategories().add(subcategory.get());
-
-        return new ResponseEntity<>(categoryRepository.save(categoryEntity), HttpStatus.OK);
-    }
-
-    @DeleteMapping("/{id}/subcategories/all")
-    public ResponseEntity<String> deleteAllSubcategories(@PathVariable ObjectId id) {
+    @PostMapping({"/{id}/subcategories"})
+    @Transactional
+    public ResponseEntity<?> addSubcategories(@PathVariable final ObjectId id, @RequestBody final List<String> subcategoriesId) {
         Optional<Category> category = categoryRepository.findById(id);
 
         if (category.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Category not found", HttpStatus.NOT_FOUND);
         }
 
         Category categoryEntity = category.get();
-        categoryEntity.getSubcategories().clear();
 
-        return new ResponseEntity<>("Successfully deleted category", HttpStatus.NO_CONTENT);
+        for (String subcategoryId : subcategoriesId) {
+            Optional<Subcategory> subcategory = subcategoryRepository.findById(new ObjectId(subcategoryId));
+
+            if (subcategory.isEmpty()) {
+                return new ResponseEntity<>(String.format("Subcategory not found: %s", subcategoryId), HttpStatus.NOT_FOUND);
+            }
+
+            Subcategory subcategoryEntity = subcategory.get();
+
+            subcategoryEntity.setCategoryId(categoryEntity.getId());
+            subcategoryRepository.save(subcategoryEntity);
+
+            if (!categoryEntity.getSubcategoriesId().contains(subcategoryId)) {
+                categoryEntity.getSubcategoriesId().add(subcategoryId);
+            }
+        }
+
+        return new ResponseEntity<>(categoryRepository.save(categoryEntity), HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/{id}/subcategories")
-    public ResponseEntity<Category> removeSubcategories(
-            @PathVariable ObjectId id,
-            @RequestBody List<String> subcategoryIds
-    ) {
+    @DeleteMapping({"/{id}/subcategories"})
+    @Transactional
+    public ResponseEntity<?> deleteSubcategories(@PathVariable final ObjectId id, @RequestBody final List<String> subcategoriesId) {
         Optional<Category> category = categoryRepository.findById(id);
 
         if (category.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Category not found", HttpStatus.NOT_FOUND);
         }
 
         Category categoryEntity = category.get();
-        categoryEntity.getSubcategories().removeIf(subcategory -> subcategoryIds.contains(subcategory.getId()));
 
-        return new ResponseEntity<>(categoryRepository.save(categoryEntity), HttpStatus.OK);
-    }
+        for (String subcategoryId : subcategoriesId) {
+            Optional<Subcategory> subcategory = subcategoryRepository.findById(new ObjectId(subcategoryId));
 
-    @DeleteMapping({"/{id}/subcategories/{subcategoryId}"})
-    public ResponseEntity<Category> removeSubcategory(@PathVariable ObjectId id, @PathVariable ObjectId subcategoryId) {
-        Optional<Category> category = categoryRepository.findById(id);
-        Optional<Subcategory> subcategory = subcategoryRepository.findById(subcategoryId);
+            if (subcategory.isEmpty()) {
+                return new ResponseEntity<>(String.format("Subcategory not found: %s", subcategoryId), HttpStatus.NOT_FOUND);
+            }
 
-        if (category.isEmpty() || subcategory.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            Subcategory subcategoryEntity = subcategory.get();
+
+            subcategoryEntity.setCategoryId(null);
+            subcategoryRepository.save(subcategoryEntity);
+
+            categoryEntity.getSubcategoriesId().remove(subcategoryId);
         }
 
-        Category categoryEntity = category.get();
-        categoryEntity.getSubcategories().remove(subcategory.get());
-
-        return new ResponseEntity<>(categoryRepository.save(categoryEntity), HttpStatus.OK);
+        return new ResponseEntity<>(categoryRepository.save(categoryEntity), HttpStatus.NO_CONTENT);
     }
+
+    /*
+    get all products
+    */
 
 }
