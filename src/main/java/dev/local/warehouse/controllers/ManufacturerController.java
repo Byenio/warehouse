@@ -39,8 +39,12 @@ public class ManufacturerController {
             return new ResponseEntity<>("Manufacturer description cannot be empty", HttpStatus.BAD_REQUEST);
         }
 
+        if (manufacturer.getCode() == null || manufacturer.getCode().isEmpty()) {
+            return new ResponseEntity<>("Manufacturer code cannot be empty", HttpStatus.BAD_REQUEST);
+        }
+
         if (manufacturer.getWebsite() == null || manufacturer.getWebsite().isEmpty()) {
-            return new ResponseEntity<>("Manufacturer webiste cannot be empty", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Manufacturer website cannot be empty", HttpStatus.BAD_REQUEST);
         }
 
         if (manufacturer.getLogoUrl() == null || manufacturer.getLogoUrl().isEmpty()) {

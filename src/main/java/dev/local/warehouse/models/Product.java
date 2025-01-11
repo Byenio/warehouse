@@ -19,7 +19,7 @@ public class Product {
     private String description;
     private String imageUrl;
     private Integer netPriceInCents;
-    private Integer vatPercentage;
+    private Float vatPercentage;
     private Integer grossPriceInCents;
     private Integer stock;
 

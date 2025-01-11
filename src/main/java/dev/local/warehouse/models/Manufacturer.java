@@ -18,6 +18,7 @@ public class Manufacturer {
     private String id;
     private String name;
     private String description;
+    private String code;
     private String logoUrl;
     private String website;
 
