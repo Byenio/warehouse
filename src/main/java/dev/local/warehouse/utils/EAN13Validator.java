@@ -6,12 +6,12 @@ public class EAN13Validator {
             return false;
         }
 
-        String barcodeCountry = barcode.substring(0, 2);
+        String barcodeCountry = barcode.substring(0, 3);
         if (!barcodeCountry.equals(countryCode)) {
             return false;
         }
 
-        String barcodeManufacturer = barcode.substring(2, 4);
+        String barcodeManufacturer = barcode.substring(3, 8);
         if (!barcodeManufacturer.equals(manufacturerCode)) {
             return false;
         }
