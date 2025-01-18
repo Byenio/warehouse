@@ -15,6 +15,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping({"/api/category"})
+@CrossOrigin(origins = "*")
 public class CategoryController {
 
     private final CategoryRepository categoryRepository;
