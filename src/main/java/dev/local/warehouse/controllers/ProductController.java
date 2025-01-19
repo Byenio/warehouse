@@ -2,6 +2,7 @@ package dev.local.warehouse.controllers;
 
 import dev.local.warehouse.models.*;
 import dev.local.warehouse.repositories.*;
+import dev.local.warehouse.utils.EAN13Generator;
 import dev.local.warehouse.utils.EAN13Validator;
 import org.bson.types.ObjectId;
 import org.springframework.http.HttpStatus;
@@ -113,12 +114,26 @@ public class ProductController {
         Country country = countryEntity.get();
 
         if (product.getBarcode() == null || product.getBarcode().isEmpty()) {
-            return new ResponseEntity<>("Barcode cannot be empty", HttpStatus.BAD_REQUEST);
+            EAN13Generator generator = new EAN13Generator();
+
+            do {
+                String generatedBarcode = generator.GenerateBarcode(country.getCode(), manufacturer.getCode());
+
+                Optional<Product> productEntity = productRepository.findByBarcode(generatedBarcode);
+
+                if (productEntity.isEmpty()) {
+                    product.setBarcode(generatedBarcode);
+                    break;
+                }
+
+            } while (true);
+
+            productRepository.save(savedProduct);
         }
 
         EAN13Validator validator = new EAN13Validator();
 
-        if (!validator.ValidateBarcode(product.getBarcode(), manufacturer.getCode(), country.getCode())) {
+        if (!validator.ValidateBarcode(product.getBarcode(), country.getCode(), manufacturer.getCode())) {
             return new ResponseEntity<>("Barcode is invalid, please refer to EAN13", HttpStatus.BAD_REQUEST);
         }
 

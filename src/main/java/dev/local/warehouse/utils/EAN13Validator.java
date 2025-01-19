@@ -2,19 +2,13 @@ package dev.local.warehouse.utils;
 
 public class EAN13Validator {
     public boolean ValidateBarcode(String barcode, String countryCode, String manufacturerCode) {
-        if (barcode == null || barcode.length() != 13 || !barcode.matches("\\d+")) {
-            return false;
-        }
+        if (barcode == null || barcode.length() != 13 || !barcode.matches("\\d+")) return false;
 
         String barcodeCountry = barcode.substring(0, 3);
-        if (!barcodeCountry.equals(countryCode)) {
-            return false;
-        }
+        if (!barcodeCountry.equals(countryCode)) return false;
 
         String barcodeManufacturer = barcode.substring(3, 8);
-        if (!barcodeManufacturer.equals(manufacturerCode)) {
-            return false;
-        }
+        if (!barcodeManufacturer.equals(manufacturerCode)) return false;
 
         int sum = 0;
         for (int i = 0; i < 12; i++) {

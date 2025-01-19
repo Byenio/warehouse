@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Document(collection = "country")
@@ -19,6 +20,6 @@ public class Country {
     private String name;
     private String code;
 
-    private List<String> manufacturersId;
+    private List<String> manufacturersId = new ArrayList<>();
 
 }
