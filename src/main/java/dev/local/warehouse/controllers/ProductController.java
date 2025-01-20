@@ -113,23 +113,22 @@ public class ProductController {
 
         Country country = countryEntity.get();
 
-        if (product.getBarcode() == null || product.getBarcode().isEmpty()) {
-            EAN13Generator generator = new EAN13Generator();
+        EAN13Generator generator = new EAN13Generator();
+        String currentBarcode = product.getBarcode();
 
-            do {
-                String generatedBarcode = generator.GenerateBarcode(country.getCode(), manufacturer.getCode());
+        do {
+            Optional<Product> productEntity = productRepository.findByBarcode(currentBarcode);
 
-                Optional<Product> productEntity = productRepository.findByBarcode(generatedBarcode);
+            if (productEntity.isEmpty()) {
+                product.setBarcode(currentBarcode);
+                break;
+            }
 
-                if (productEntity.isEmpty()) {
-                    product.setBarcode(generatedBarcode);
-                    break;
-                }
+            currentBarcode = generator.GenerateBarcode(country.getCode(), manufacturer.getCode());
 
-            } while (true);
+        } while (true);
 
-            productRepository.save(savedProduct);
-        }
+        productRepository.save(savedProduct);
 
         EAN13Validator validator = new EAN13Validator();
 
