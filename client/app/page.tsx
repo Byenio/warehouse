@@ -1,16 +1,14 @@
-import { env } from "process";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default async function Home() {
-    const data = await fetch(
-        `http://${env.SERVER_ADDRESS}:${env.SERVER_PORT}/api/category`
-    );
-    const categories: Category[] = await data.json();
-
     return (
         <div>
-            {categories.map((category) => {
-                return <div>{category.name}</div>;
-            })}
+            <Button asChild>
+                <Link href={"/products"} prefetch>
+                    Go to products page
+                </Link>
+            </Button>
         </div>
     );
 }
