@@ -4,12 +4,15 @@ import dev.local.warehouse.models.Category;
 import dev.local.warehouse.models.Subcategory;
 import dev.local.warehouse.repositories.CategoryRepository;
 import dev.local.warehouse.repositories.SubcategoryRepository;
+import dev.local.warehouse.responseObjects.CategoryResponse;
+import dev.local.warehouse.responseObjects.SubcategoryInfo;
 import org.bson.types.ObjectId;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -60,7 +63,37 @@ public class CategoryController {
 
     @GetMapping
     public ResponseEntity<?> getAll() {
-        return new ResponseEntity<>(categoryRepository.findAll(), HttpStatus.OK);
+        List<Category> categories = categoryRepository.findAll();
+        List<CategoryResponse> response = new ArrayList<>();
+
+        for (Category category : categories) {
+            List<SubcategoryInfo> subcategories = new ArrayList<>();
+
+            for (String subcategoryId : category.getSubcategoriesId()) {
+                Optional<Subcategory> subcategory = subcategoryRepository.findById(new ObjectId(subcategoryId));
+
+                if (subcategory.isEmpty()) {
+                    return new ResponseEntity<>(String.format("Subcategory not found: %s", subcategoryId), HttpStatus.NOT_FOUND);
+                }
+
+                Subcategory subcategoryEntity = subcategory.get();
+
+                subcategories.add(new SubcategoryInfo(
+                        subcategoryEntity.getId(),
+                        subcategoryEntity.getName(),
+                        subcategoryEntity.getDescription()
+                ));
+            }
+
+            response.add(new CategoryResponse(
+                    category.getId(),
+                    category.getName(),
+                    category.getDescription(),
+                    subcategories
+            ));
+        }
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping({"/{id}"})
@@ -73,7 +106,32 @@ public class CategoryController {
 
         Category categoryEntity = category.get();
 
-        return new ResponseEntity<>(categoryEntity, HttpStatus.OK);
+        List<SubcategoryInfo> subcategories = new ArrayList<>();
+
+        for (String subcategoryId : categoryEntity.getSubcategoriesId()) {
+            Optional<Subcategory> subcategory = subcategoryRepository.findById(new ObjectId(subcategoryId));
+
+            if (subcategory.isEmpty()) {
+                return new ResponseEntity<>(String.format("Subcategory not found: %s", subcategoryId), HttpStatus.NOT_FOUND);
+            }
+
+            Subcategory subcategoryEntity = subcategory.get();
+
+            subcategories.add(new SubcategoryInfo(
+                    subcategoryEntity.getId(),
+                    subcategoryEntity.getName(),
+                    subcategoryEntity.getDescription()
+            ));
+        }
+
+        CategoryResponse response = new CategoryResponse(
+                categoryEntity.getId(),
+                categoryEntity.getName(),
+                categoryEntity.getDescription(),
+                subcategories
+        );
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping({"/{id}/subcategories"})
@@ -161,9 +219,5 @@ public class CategoryController {
 
         return new ResponseEntity<>(categoryRepository.save(categoryEntity), HttpStatus.NO_CONTENT);
     }
-
-    /*
-    get all products
-    */
 
 }

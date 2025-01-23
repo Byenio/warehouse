@@ -2,6 +2,10 @@ package dev.local.warehouse.controllers;
 
 import dev.local.warehouse.models.*;
 import dev.local.warehouse.repositories.*;
+import dev.local.warehouse.responseObjects.CountryInfo;
+import dev.local.warehouse.responseObjects.ManufacturerInfo;
+import dev.local.warehouse.responseObjects.ProductResponse;
+import dev.local.warehouse.responseObjects.SubcategoryInfo;
 import dev.local.warehouse.utils.EAN13Generator;
 import dev.local.warehouse.utils.EAN13Validator;
 import org.bson.types.ObjectId;
@@ -10,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -67,10 +73,10 @@ public class ProductController {
         }
 
         if (hasNetPrice) {
-            int grossPriceInCents = Math.round(product.getNetPriceInCents() * (1 + product.getVatPercentage()/100));
+            int grossPriceInCents = Math.round(product.getNetPriceInCents() * (1 + product.getVatPercentage() / 100));
             product.setGrossPriceInCents(grossPriceInCents);
         } else {
-            int netPriceInCents = Math.round(product.getGrossPriceInCents() / (1 + product.getVatPercentage()/100));
+            int netPriceInCents = Math.round(product.getGrossPriceInCents() / (1 + product.getVatPercentage() / 100));
             product.setNetPriceInCents(netPriceInCents);
         }
 
@@ -155,7 +161,71 @@ public class ProductController {
 
     @GetMapping()
     public ResponseEntity<?> getAll() {
-        return new ResponseEntity<>(productRepository.findAll(), HttpStatus.OK);
+        List<Product> products = productRepository.findAll();
+        List<ProductResponse> response = new ArrayList<>();
+
+        for (Product product : products) {
+            Optional<Subcategory> subcategory = subcategoryRepository.findById(new ObjectId(product.getSubcategoryId()));
+
+            if (subcategory.isEmpty()) {
+                return new ResponseEntity<>("Subcategory not found", HttpStatus.NOT_FOUND);
+            }
+
+            Subcategory subcategoryEntity = subcategory.get();
+
+            Optional<Manufacturer> manufacturer = manufacturerRepository.findById(new ObjectId(product.getManufacturerId()));
+
+            if (manufacturer.isEmpty()) {
+                return new ResponseEntity<>("Manufacturer not found", HttpStatus.NOT_FOUND);
+            }
+
+            Manufacturer manufacturerEntity = manufacturer.get();
+
+            Optional<Country> country = countryRepository.findById(new ObjectId(manufacturerEntity.getCountryId()));
+
+            if (country.isEmpty()) {
+                return new ResponseEntity<>("Country not found", HttpStatus.NOT_FOUND);
+            }
+
+            Country countryEntity = country.get();
+
+            SubcategoryInfo subcategoryInfo = new SubcategoryInfo(
+                    subcategoryEntity.getId(),
+                    subcategoryEntity.getName(),
+                    subcategoryEntity.getDescription()
+            );
+
+            CountryInfo countryInfo = new CountryInfo(
+                    countryEntity.getId(),
+                    countryEntity.getName(),
+                    countryEntity.getCode()
+            );
+
+            ManufacturerInfo manufacturerInfo = new ManufacturerInfo(
+                    manufacturerEntity.getId(),
+                    manufacturerEntity.getName(),
+                    manufacturerEntity.getDescription(),
+                    manufacturerEntity.getCode(),
+                    manufacturerEntity.getLogoUrl(),
+                    manufacturerEntity.getWebsite(),
+                    countryInfo
+            );
+
+            response.add(new ProductResponse(
+                    product.getId(),
+                    product.getName(),
+                    product.getDescription(),
+                    product.getBarcode(),
+                    product.getImageUrl(),
+                    product.getNetPriceInCents(),
+                    product.getGrossPriceInCents(),
+                    product.getStock(),
+                    subcategoryInfo,
+                    manufacturerInfo
+            ));
+        }
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping({"/{id}"})
@@ -168,7 +238,66 @@ public class ProductController {
 
         Product productEntity = product.get();
 
-        return new ResponseEntity<>(productEntity, HttpStatus.OK);
+        Optional<Subcategory> subcategory = subcategoryRepository.findById(new ObjectId(productEntity.getSubcategoryId()));
+
+        if (subcategory.isEmpty()) {
+            return new ResponseEntity<>("Subcategory not found", HttpStatus.NOT_FOUND);
+        }
+
+        Subcategory subcategoryEntity = subcategory.get();
+
+        Optional<Manufacturer> manufacturer = manufacturerRepository.findById(new ObjectId(productEntity.getManufacturerId()));
+
+        if (manufacturer.isEmpty()) {
+            return new ResponseEntity<>("Manufacturer not found", HttpStatus.NOT_FOUND);
+        }
+
+        Manufacturer manufacturerEntity = manufacturer.get();
+
+        Optional<Country> country = countryRepository.findById(new ObjectId(manufacturerEntity.getCountryId()));
+
+        if (country.isEmpty()) {
+            return new ResponseEntity<>("Country not found", HttpStatus.NOT_FOUND);
+        }
+
+        Country countryEntity = country.get();
+
+        SubcategoryInfo subcategoryInfo = new SubcategoryInfo(
+                subcategoryEntity.getId(),
+                subcategoryEntity.getName(),
+                subcategoryEntity.getDescription()
+        );
+
+        CountryInfo countryInfo = new CountryInfo(
+                countryEntity.getId(),
+                countryEntity.getName(),
+                countryEntity.getCode()
+        );
+
+        ManufacturerInfo manufacturerInfo = new ManufacturerInfo(
+                manufacturerEntity.getId(),
+                manufacturerEntity.getName(),
+                manufacturerEntity.getDescription(),
+                manufacturerEntity.getCode(),
+                manufacturerEntity.getLogoUrl(),
+                manufacturerEntity.getWebsite(),
+                countryInfo
+        );
+
+        ProductResponse response = new ProductResponse(
+                productEntity.getId(),
+                productEntity.getName(),
+                productEntity.getDescription(),
+                productEntity.getBarcode(),
+                productEntity.getImageUrl(),
+                productEntity.getNetPriceInCents(),
+                productEntity.getGrossPriceInCents(),
+                productEntity.getStock(),
+                subcategoryInfo,
+                manufacturerInfo
+        );
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @DeleteMapping({"/{id}"})
