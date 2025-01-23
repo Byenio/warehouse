@@ -67,10 +67,10 @@ public class ProductController {
         }
 
         if (hasNetPrice) {
-            int grossPriceInCents = Math.round(product.getNetPriceInCents() * (1 + product.getVatPercentage()));
+            int grossPriceInCents = Math.round(product.getNetPriceInCents() * (1 + product.getVatPercentage()/100));
             product.setGrossPriceInCents(grossPriceInCents);
         } else {
-            int netPriceInCents = Math.round(product.getGrossPriceInCents() / (1 + product.getVatPercentage()));
+            int netPriceInCents = Math.round(product.getGrossPriceInCents() / (1 + product.getVatPercentage()/100));
             product.setNetPriceInCents(netPriceInCents);
         }
 
