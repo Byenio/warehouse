@@ -88,8 +88,4 @@ public class SubcategoryController {
         return new ResponseEntity<>("Subcategory deleted", HttpStatus.NO_CONTENT);
     }
 
-    /*
-    get all products
-    */
-
 }
