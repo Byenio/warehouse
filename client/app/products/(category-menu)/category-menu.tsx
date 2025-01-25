@@ -13,7 +13,7 @@ export default function CategoryMenu({
 }) {
     return (
         <div className="mx-6 my-6">
-            <p className="font-bold mb-2">KATEGORIE</p>
+            <p className="font-bold mb-2">KATEGORIE PRODUKTÓW</p>
             <Accordion type="single" collapsible>
                 {categories.map((category) => (
                     <AccordionItem key={category.id} value={category.id}>
