@@ -8,6 +8,10 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Loading() {
+    return Array(10).fill(<LoadingCard />);
+}
+
+function LoadingCard() {
     return (
         <Card className="max-w-[480px] my-2">
             <CardHeader className="h-24 space-y-2">

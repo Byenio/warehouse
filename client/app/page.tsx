@@ -1,14 +1,14 @@
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import Warehouses from "./(warehouses)/warehouses";
 
 export default async function Home() {
     return (
-        <div>
-            <Button asChild>
-                <Link href={"/products"} prefetch>
-                    Go to products page
-                </Link>
-            </Button>
-        </div>
+        <>
+            <p className="mt-12 mb-6 w-full font-bold text-center text-2xl">
+                Wybierz magazyn
+            </p>
+            <div className="flex flex-wrap mx-[300px] place-content-center gap-4">
+                <Warehouses />
+            </div>
+        </>
     );
 }

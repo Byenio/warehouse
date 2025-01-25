@@ -23,5 +23,6 @@ public class ProductResponse {
 
     private SubcategoryInfo subcategory;
     private ManufacturerInfo manufacturer;
+    private String warehouseId;
 
 }

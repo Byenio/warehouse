@@ -221,7 +221,8 @@ public class ProductController {
                     product.getGrossPriceInCents(),
                     product.getStock(),
                     subcategoryInfo,
-                    manufacturerInfo
+                    manufacturerInfo,
+                    product.getWarehouseId()
             ));
         }
 
@@ -294,7 +295,8 @@ public class ProductController {
                 productEntity.getGrossPriceInCents(),
                 productEntity.getStock(),
                 subcategoryInfo,
-                manufacturerInfo
+                manufacturerInfo,
+                productEntity.getWarehouseId()
         );
 
         return new ResponseEntity<>(response, HttpStatus.OK);
