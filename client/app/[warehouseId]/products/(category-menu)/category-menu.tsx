@@ -4,12 +4,15 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
+import ClearFilters from "./clear-filters";
+import Subcategories from "./subcategories";
 
-export default function CategoryMenu({
+export default async function CategoryMenu({
     categories,
+    warehouseId,
 }: {
     categories: Category[];
+    warehouseId: string;
 }) {
     return (
         <div className="mx-6 my-6">
@@ -26,22 +29,7 @@ export default function CategoryMenu({
                     </AccordionItem>
                 ))}
             </Accordion>
+            <ClearFilters warehouseId={warehouseId} />
         </div>
-    );
-}
-
-function Subcategories({
-    subcategories,
-}: {
-    subcategories: SubcategoryInfo[];
-}) {
-    return (
-        <>
-            {subcategories.map((subcategory) => (
-                <Button key={subcategory.id} variant="link" className="w-full">
-                    {subcategory.name}
-                </Button>
-            ))}
-        </>
     );
 }

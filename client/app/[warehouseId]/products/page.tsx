@@ -1,5 +1,5 @@
 import { env } from "process";
-import ProductCard from "./product-card";
+import FilterableProducts from "./filterable-products";
 
 export default async function Products({
     params,
@@ -19,10 +19,8 @@ export default async function Products({
     );
 
     return (
-        <div className="grid grid-cols-3 m-4 justify-evenly">
-            {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
-            ))}
-        </div>
+        <>
+            <FilterableProducts products={products} />
+        </>
     );
 }
