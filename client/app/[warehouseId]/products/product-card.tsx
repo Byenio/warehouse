@@ -1,4 +1,4 @@
-import PackageIcon from "@/components/icons/package";
+import { PackageIconSmall } from "@/components/icons/package";
 import {
     Card,
     CardContent,
@@ -21,7 +21,7 @@ export default function ProductCard({ product }: { product: Product }) {
                 <CardContent className="h-42">
                     {/*<div>{product.imageUrl}</div>*/}
                     <div className="flex justify-center">
-                        <PackageIcon />
+                        <PackageIconSmall />
                     </div>
                     <ProductCardInfo
                         stock={product.stock}
