@@ -21,11 +21,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
+import { useState } from "react";
+import { submitForm } from "./submitForm";
 
 const formSchema = z.object({
   name: z.string(),
   description: z.string(),
-  barcode: z.string(),
   imageUrl: z.string(),
   vatPercentage: z.string(),
   grossPriceInCents: z.string(),
@@ -49,17 +50,7 @@ export default function ProductForm({
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    try {
-      console.log(values);
-      toast(
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(values, null, 2)}</code>
-        </pre>
-      );
-    } catch (error) {
-      console.error("Form submission error", error);
-      toast.error("Failed to submit the form. Please try again.");
-    }
+    submitForm(values);
   }
 
   return (
@@ -90,20 +81,6 @@ export default function ProductForm({
               <FormLabel>Opis</FormLabel>
               <FormControl>
                 <Input placeholder="opis" type="text" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="barcode"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Kod kreskowy</FormLabel>
-              <FormControl>
-                <Input placeholder="kod" type="text" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
