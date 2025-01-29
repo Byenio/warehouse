@@ -2,7 +2,6 @@
 
 import * as z from "zod";
 import { env } from "process";
-import { redirect } from "next/navigation";
 
 const formSchema = z.object({
   name: z.string(),
@@ -31,5 +30,4 @@ export async function submitForm(values: z.infer<typeof formSchema>) {
   if (!response.ok) {
     throw new Error("Błąd wysyłania danych");
   }
-  redirect("/");
 }
