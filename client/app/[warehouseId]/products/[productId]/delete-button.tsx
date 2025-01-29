@@ -68,14 +68,14 @@ export default function DeleteButton({ productId }: { productId: string }) {
             </AlertDialog>
 
             {status === "success" && (
-                <Alert className="mt-4 bg-green-100 border-green-500 text-green-700">
+                <Alert variant="default" className="mt-2">
                     <AlertTitle>✅ Produkt usunięty</AlertTitle>
                     <AlertDescription>Przekierowywanie...</AlertDescription>
                 </Alert>
             )}
 
             {status === "error" && (
-                <Alert className="mt-4 bg-red-100 border-red-500 text-red-700">
+                <Alert variant="destructive" className="mt-2">
                     <AlertTitle>❌ Błąd</AlertTitle>
                     <AlertDescription>Wystąpił problem.</AlertDescription>
                 </Alert>
