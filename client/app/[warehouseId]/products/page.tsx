@@ -9,8 +9,7 @@ export default async function Products({
   const { warehouseId } = await params;
 
   const data = await fetch(
-    `http://${env.SERVER_ADDRESS}:${env.SERVER_PORT}/api/product`,
-    { cache: "force-cache" }
+    `http://${env.SERVER_ADDRESS}:${env.SERVER_PORT}/api/product`
   );
   const allProducts: Product[] = await data.json();
 

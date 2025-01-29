@@ -121,7 +121,9 @@ public class ProductController {
 
         EAN13Generator generator = new EAN13Generator();
         String currentBarcode = product.getBarcode();
-
+        if (currentBarcode == null || currentBarcode.isEmpty()) {
+            currentBarcode = generator.GenerateBarcode(country.getCode(), manufacturer.getCode());
+        }
         do {
             Optional<Product> productEntity = productRepository.findByBarcode(currentBarcode);
 

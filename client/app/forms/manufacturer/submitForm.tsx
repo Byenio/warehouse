@@ -6,18 +6,16 @@ import { env } from "process";
 const formSchema = z.object({
   name: z.string(),
   description: z.string(),
-  imageUrl: z.string(),
-  vatPercentage: z.string(),
-  grossPriceInCents: z.string(),
-  stock: z.string(),
-  subcategoryId: z.string(),
-  manufacturerId: z.string(),
-  warehouseId: z.string(),
+  code: z.string(),
+  logoUrl: z.string(),
+  website: z.string(),
+  countryId: z.string(),
 });
 
 export async function submitForm(values: z.infer<typeof formSchema>) {
+  console.log(values);
   const response = await fetch(
-    `http://${env.SERVER_ADDRESS}:${env.SERVER_PORT}/api/product`,
+    `http://${env.SERVER_ADDRESS}:${env.SERVER_PORT}/api/manufacturer`,
     {
       method: "POST",
       headers: {
@@ -30,4 +28,5 @@ export async function submitForm(values: z.infer<typeof formSchema>) {
   if (!response.ok) {
     throw new Error("Błąd wysyłania danych");
   }
+  console.log(response);
 }

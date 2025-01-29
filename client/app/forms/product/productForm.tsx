@@ -19,21 +19,20 @@ import {
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import * as z from "zod";
-import { useState } from "react";
 import { submitForm } from "./submitForm";
 
 const formSchema = z.object({
   name: z.string(),
   description: z.string(),
   imageUrl: z.string(),
+  barcode: z.string().optional(),
   vatPercentage: z.string(),
   grossPriceInCents: z.string(),
   stock: z.string(),
-  subcategory: z.string(),
-  manufacturer: z.string(),
-  warehouse: z.string(),
+  subcategoryId: z.string(),
+  manufacturerId: z.string(),
+  warehouseId: z.string(),
 });
 
 export default function ProductForm({
@@ -56,7 +55,7 @@ export default function ProductForm({
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(() => onSubmit(form.getValues()))}
         className="space-y-8 max-w-3xl mx-auto py-10"
       >
         <FormField
@@ -97,6 +96,19 @@ export default function ProductForm({
                 <Input placeholder="url" type="text" {...field} />
               </FormControl>
 
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="barcode"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Kod kreskowy</FormLabel>
+              <FormControl>
+                <Input placeholder="barcode" type="text" {...field} />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
@@ -146,7 +158,7 @@ export default function ProductForm({
 
         <FormField
           control={form.control}
-          name="subcategory"
+          name="subcategoryId"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Podkategoria</FormLabel>
@@ -171,7 +183,7 @@ export default function ProductForm({
 
         <FormField
           control={form.control}
-          name="manufacturer"
+          name="manufacturerId"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Producent</FormLabel>
@@ -196,7 +208,7 @@ export default function ProductForm({
 
         <FormField
           control={form.control}
-          name="warehouse"
+          name="warehouseId"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Magazyn</FormLabel>

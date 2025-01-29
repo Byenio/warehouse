@@ -6,18 +6,12 @@ import { env } from "process";
 const formSchema = z.object({
   name: z.string(),
   description: z.string(),
-  imageUrl: z.string(),
-  vatPercentage: z.string(),
-  grossPriceInCents: z.string(),
-  stock: z.string(),
-  subcategoryId: z.string(),
-  manufacturerId: z.string(),
-  warehouseId: z.string(),
+  category: z.string(),
 });
 
 export async function submitForm(values: z.infer<typeof formSchema>) {
   const response = await fetch(
-    `http://${env.SERVER_ADDRESS}:${env.SERVER_PORT}/api/product`,
+    `http://${env.SERVER_ADDRESS}:${env.SERVER_PORT}/api/subcategory`,
     {
       method: "POST",
       headers: {
